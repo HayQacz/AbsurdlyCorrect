@@ -1,0 +1,23 @@
+﻿version: "3.8"
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: absurdly_db
+    environment:
+      POSTGRES_USER: absurdly
+      POSTGRES_PASSWORD: correct
+      POSTGRES_DB: absurdly_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer
+    container_name: absurdly_adminer
+    ports:
+      - "8080:8080"
+
+volumes:
+  pgdata:

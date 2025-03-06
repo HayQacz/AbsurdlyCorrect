@@ -19,5 +19,29 @@ services:
     ports:
       - "8080:8080"
 
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: absurdly_backend
+    # Zależność od bazy
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+    environment:
+      # Przykładowa zmienna do łączenia z bazą
+      DATABASE_URL: "postgresql+asyncpg://absurdly:correct@db:5432/absurdly_db"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: absurdly_frontend
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+
 volumes:
   pgdata:

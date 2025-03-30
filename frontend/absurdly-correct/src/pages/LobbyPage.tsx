@@ -6,7 +6,6 @@ import { Slider } from "../components/ui/Slider"
 
 const LobbyPage: React.FC = () => {
   const { gameState, startGame, updateSettings, kickPlayer, leaveGame } = useGame()
-  // Zmieniamy nazwę na _gameId, by nie było ostrzeżenia
   const { gameId: _gameId } = useParams<{ gameId: string }>()
   const [showSettings, setShowSettings] = useState(false)
 

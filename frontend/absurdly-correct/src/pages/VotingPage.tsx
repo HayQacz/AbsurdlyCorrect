@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useParams } from "react-router-dom";
 import { useGame } from "../context/GameContext";
 import { Card } from "../components/Card";
@@ -8,20 +8,12 @@ const VotingPage: React.FC = () => {
     const { gameState, voteForAnswer } = useGame();
     const { gameId: _gameId } = useParams<{ gameId: string }>();
 
-    // Lokalny stan do zapamiętania, w której rundzie oddaliśmy głos.
-    const [votedRound, setVotedRound] = useState<number | null>(null);
-
-    // Jeżeli currentRound się zmienia, resetujemy stan votedRound
-    // aby zaznaczenie nie przechodziło do kolejnej tury.
-    useEffect(() => {
-        setVotedRound(null);
-    }, [gameState.currentRound]);
-
     const handleVote = (playerId: string) => {
+        if (gameState.votedPlayerId) return;
         voteForAnswer(playerId);
-        // Ustawiamy votedRound na obecną rundę
-        setVotedRound(gameState.currentRound);
     };
+
+    const votesCount = Object.keys(gameState.votes || {}).length;
 
     return (
         <div className="min-h-screen flex flex-col p-4 pb-20">
@@ -44,27 +36,16 @@ const VotingPage: React.FC = () => {
                 Choose the best answer:
             </h2>
 
-            {/*
-        Dodajemy max-w-lg i mx-auto,
-        aby kontenery kart były takie same jak w PresentationPage
-      */}
             <div className="max-w-lg mx-auto w-full space-y-4 mb-8">
                 {gameState.playerAnswers.map((answer) => {
-                    // Sprawdzamy, czy w tej turze (currentRound) oddaliśmy głos na tę kartę
-                    const isVotedInThisRound =
-                        votedRound === gameState.currentRound &&
-                        gameState.votedPlayerId === answer.playerId;
+                    const isVoted = gameState.votedPlayerId === answer.playerId;
 
                     return (
                         <div
                             key={answer.playerId}
                             onClick={() => handleVote(answer.playerId)}
-                            className={`bg-gray-800 rounded-lg p-6 shadow-lg transition-all 
-                          hover:bg-gray-700 cursor-pointer 
-                          ${
-                                isVotedInThisRound
-                                    ? "border-2 border-yellow-400"
-                                    : ""
+                            className={`bg-gray-800 rounded-lg p-6 shadow-lg transition-all hover:bg-gray-700 cursor-pointer ${
+                                isVoted ? "border-2 border-yellow-400" : ""
                             }`}
                         >
                             <p className="text-lg text-yellow-400 mb-2 font-semibold">
@@ -91,13 +72,8 @@ const VotingPage: React.FC = () => {
                     <div>
                         <span className="font-semibold">Votes Cast:</span>{" "}
                         <span className="text-green-400">
-              {
-                  gameState.players.filter((p) =>
-                      gameState.playerAnswers.some((a) => a.playerId === p.id)
-                  ).length
-              }
-                            /{gameState.players.length}
-            </span>
+                            {votesCount}/{gameState.players.length}
+                        </span>
                     </div>
                     <div className="flex items-center">
                         <span className="mr-2">Time Left:</span>

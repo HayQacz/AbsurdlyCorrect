@@ -23,13 +23,11 @@ const PresentationPage: React.FC = () => {
             {gameState.playerAnswers.map((answer, index) => (
                 <Motion key={index} delay={index * 800}>
                   <div className="bg-gray-800 rounded-lg p-6 shadow-lg">
-                    {/* Najpierw cała karta z nagłówkiem */}
                     <div className="mb-4">
                       <p className="text-xl text-yellow-400 font-semibold">
                         {answer.nickname} answered:
                       </p>
                     </div>
-                    {/* Po krótkim opóźnieniu pojawia się treść (animacja z dołu) */}
                     <Motion delay={300}>
                       <Card
                           content={answer.card.content}

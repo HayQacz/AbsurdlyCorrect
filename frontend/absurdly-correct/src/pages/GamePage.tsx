@@ -1,25 +1,23 @@
-import React, { useEffect, useState } from "react"
-import { useParams } from "react-router-dom"
-import { useGame } from "../context/GameContext"
-import { Card } from "../components/Card"
-import { Timer } from "../components/Timer"
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { useGame } from "../context/GameContext";
+import { Card } from "../components/Card";
+import { Timer } from "../components/Timer";
 
 const GamePage: React.FC = () => {
-    const { gameState, selectCard } = useGame()
-    // Zmieniamy nazwę zmiennej na _gameId, by nie było ostrzeżenia
-    const { gameId: _gameId } = useParams<{ gameId: string }>()
-    const [selectedCard, setSelectedCard] = useState<string | null>(null)
+    const { gameState, selectCard } = useGame();
+    const { gameId: _gameId } = useParams<{ gameId: string }>();
+    const [selectedCard, setSelectedCard] = useState<string | null>(null);
 
-    // Reset selected card when starting a new round
     useEffect(() => {
-        setSelectedCard(null)
-    }, [gameState.currentRound])
+        setSelectedCard(null);
+    }, [gameState.currentRound]);
 
     const handleSelectCard = (cardId: string) => {
-        if (selectedCard || !gameState.timeLeft) return
-        setSelectedCard(cardId)
-        selectCard(cardId)
-    }
+        if (selectedCard || !gameState.timeLeft) return;
+        setSelectedCard(cardId);
+        selectCard(cardId);
+    };
 
     return (
         <div className="min-h-screen flex flex-col p-4 pb-20">
@@ -66,8 +64,8 @@ const GamePage: React.FC = () => {
                     <div>
                         <span className="font-semibold">Players Ready:</span>{" "}
                         <span className="text-green-400">
-              {gameState.playerAnswers.length}/{gameState.players.length}
-            </span>
+                            {gameState.answersCount !== undefined ? gameState.answersCount : gameState.playerAnswers.length}/{gameState.players.length}
+                        </span>
                     </div>
                     <div className="flex items-center">
                         <span className="mr-2">Time Left:</span>
@@ -76,7 +74,7 @@ const GamePage: React.FC = () => {
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default GamePage
+export default GamePage;

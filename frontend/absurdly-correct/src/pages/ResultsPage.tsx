@@ -9,7 +9,6 @@ const ResultsPage: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Uruchomienie animacji confetti przez 3 sekundy
     const duration = 3000;
     const end = Date.now() + duration;
     const interval = setInterval(() => {
@@ -29,7 +28,6 @@ const ResultsPage: React.FC = () => {
 
   const handlePlayAgain = () => {
     restartGame();
-    // Po restarcie przekierowujemy graczy do lobby nowej gry
     navigate(`/lobby/${gameState.gameId}`);
   };
 

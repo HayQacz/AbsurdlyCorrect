@@ -18,10 +18,9 @@ from app.models import (
 from app.database import async_session
 
 router = APIRouter()
-games = {}  # game_id -> Game
+games = {}
 manager = ConnectionManager()
 
-# Dependency: zwraca asynchroniczną sesję
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
     async with async_session() as session:
         yield session

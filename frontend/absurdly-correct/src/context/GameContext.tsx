@@ -62,6 +62,8 @@ interface GameState {
   winners: PlayerScore[];
   selectedCardId: string | null;
   votedPlayerId: string | null;
+  votes: Record<string, number>;
+  answersCount?: number;
 }
 
 // --------------------------------
@@ -106,9 +108,15 @@ const initialState: GameState = {
   winners: [],
   selectedCardId: null,
   votedPlayerId: null,
+  votes: {},
 };
 
 const GameContext = createContext<GameContextProps | undefined>(undefined);
+
+
+function hasOwn(obj: unknown, prop: string): boolean {
+  return Object.prototype.hasOwnProperty.call(obj, prop);
+}
 
 export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [gameState, setGameState] = useState<GameState>(initialState);
@@ -116,7 +124,6 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [playerId] = useState(() => crypto.randomUUID().slice(0, 8));
   const wsRef = useRef<WebSocket | null>(null);
 
-  // Funkcja otwierająca połączenie WebSocket dla danego gameId, zwraca promise, który resolve gdy połączenie jest gotowe
   const openWebsocket = (gameId: string): Promise<void> => {
     return new Promise((resolve, reject) => {
       const base = import.meta.env.VITE_API_URL || "http://localhost:8000";
@@ -159,21 +166,26 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (type === "game_update") {
       setGameState((prev) => ({
         ...prev,
-        gameId: (data.gameId as string) || prev.gameId,
-        playerId: (data.playerId as string) || prev.playerId,
-        isHost: (data.isHost as boolean) ?? prev.isHost,
-        players: (data.players as Player[]) ?? prev.players,
-        blackCard: (data.blackCard as BlackCard) ?? prev.blackCard,
-        currentRound: (data.currentRound as number) ?? prev.currentRound,
-        gamePhase: (data.gamePhase as GameState["gamePhase"]) ?? prev.gamePhase,
-        settings: (data.settings as GameSettings) ?? prev.settings,
-        playerAnswers: (data.playerAnswers as PlayerAnswer[]) ?? prev.playerAnswers,
-        currentPresentationIndex:
-            (data.currentPresentationIndex as number) ?? prev.currentPresentationIndex,
-        timeLeft: (data.timeLeft as number) ?? prev.timeLeft,
-        winners: (data.winners as PlayerScore[]) ?? prev.winners,
-        whiteCards: (data.whiteCards as WhiteCard[]) ?? prev.whiteCards,
-        votedPlayerId: (data.votedPlayerId as string) ?? prev.votedPlayerId,
+        gameId: hasOwn(data, "gameId") ? (data.gameId as string) : prev.gameId,
+        playerId: hasOwn(data, "playerId") ? (data.playerId as string) : prev.playerId,
+        nickname: prev.nickname,
+        isHost: hasOwn(data, "isHost") ? (data.isHost as boolean) : false,
+        players: hasOwn(data, "players") ? (data.players as Player[]) : prev.players,
+        blackCard: hasOwn(data, "blackCard") ? (data.blackCard as BlackCard) : null,
+        currentRound: hasOwn(data, "currentRound") ? (data.currentRound as number) : prev.currentRound,
+        gamePhase: hasOwn(data, "gamePhase") ? (data.gamePhase as GameState["gamePhase"]) : prev.gamePhase,
+        settings: hasOwn(data, "settings") ? (data.settings as GameSettings) : prev.settings,
+        playerAnswers: hasOwn(data, "playerAnswers") ? (data.playerAnswers as PlayerAnswer[]) : prev.playerAnswers,
+        currentPresentationIndex: hasOwn(data, "currentPresentationIndex")
+            ? (data.currentPresentationIndex as number)
+            : 0,
+        timeLeft: hasOwn(data, "timeLeft") ? (data.timeLeft as number) : 0,
+        winners: hasOwn(data, "winners") ? (data.winners as PlayerScore[]) : [],
+        whiteCards: hasOwn(data, "whiteCards") ? (data.whiteCards as WhiteCard[]) : [],
+        votedPlayerId: hasOwn(data, "votedPlayerId") ? (data.votedPlayerId as string | null) : null,
+        votes: hasOwn(data, "votes") ? (data.votes as Record<string, number>) : {},
+        answersCount: hasOwn(data, "answersCount") ? (data.answersCount as number) : 0,
+        selectedCardId: prev.selectedCardId,
       }));
     } else if (type === "error") {
       const msg = data.message as string;
@@ -195,7 +207,6 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     ws.send(JSON.stringify(payload));
   };
 
-  // Funkcje akcji – otwieramy połączenie dopiero przy próbie stworzenia lub dołączenia do gry
   const createGame = (nickname: string) => {
     setGameState((prev) => ({ ...prev, nickname }));
     openWebsocket("nogame")
@@ -223,8 +234,6 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     sendMessage({ action: "start_game", gameId: gameState.gameId });
   };
 
-  // Aktualizacja ustawień – najpierw zmieniamy lokalny stan, by od razu pokazać nowe wartości,
-  // potem wysyłamy komunikat do backendu
   const updateSettings = (settings: Partial<GameSettings>) => {
     if (!gameState.gameId) return;
     setGameState((prev) => ({

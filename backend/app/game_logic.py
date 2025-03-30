@@ -5,13 +5,13 @@ from typing import List, Dict, Optional, Callable, Awaitable
 from fastapi import WebSocket
 
 from app.models import (
-    BlackCard,  # Pydantic model
-    WhiteCard,  # Pydantic model
+    BlackCard,
+    WhiteCard,
     Player,
     PlayerAnswer,
     GameSettings,
 )
-from app.models import BlackCardDB, WhiteCardDB  # SQLAlchemy modele
+from app.models import BlackCardDB, WhiteCardDB
 from sqlalchemy import select
 from app.database import async_session
 
@@ -30,14 +30,13 @@ class Game:
         self.votes: Dict[str, str] = {}
         self.current_round = 0
         self.round_winners: List[str] = []
-        self.game_phase = "lobby"  # "lobby", "selection", "presentation", "voting", "results"
+        self.game_phase = "lobby"
         self.settings = GameSettings()
         self.connections: Dict[str, WebSocket] = {}
         self.timer_task: Optional[asyncio.Task] = None
         self.presentation_task: Optional[asyncio.Task] = None
-        self.current_presentation_index = 0  # Dodane – indeks aktualnie prezentowanej odpowiedzi
+        self.current_presentation_index = 0
         self.timer_value = 0
-        # Callback wywoływany przy zmianach stanu gry (broadcast + ewentualna nawigacja)
         self.notify: Optional[Callable[[], Awaitable[None]]] = None
 
     def add_player(self, player_id: str, nickname: str) -> Player:
@@ -200,7 +199,6 @@ class Game:
         voter = next((p for p in self.players if p.id == voter_id), None)
         if not voter:
             return False
-        # Pozwalamy na głosowanie na dowolną odpowiedź (nawet własną)
         voted_pl = next((p for p in self.players if p.id == voted_player_id), None)
         voted_ans = next((a for a in self.player_answers if a.playerId == voted_player_id), None)
         if not voted_pl or not voted_ans:

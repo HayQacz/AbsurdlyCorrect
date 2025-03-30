@@ -4,7 +4,6 @@ from pydantic import BaseModel, ConfigDict
 
 Base = declarative_base()
 
-# SQLAlchemy models (bazodanowe)
 class BlackCardDB(Base):
     __tablename__ = "black_cards"
     id = Column(String, primary_key=True, index=True)
@@ -15,7 +14,6 @@ class WhiteCardDB(Base):
     id = Column(String, primary_key=True, index=True)
     content = Column(String, nullable=False)
 
-# Pydantic models (do komunikacji API)
 class BlackCard(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: str | None = None

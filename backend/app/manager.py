@@ -59,6 +59,7 @@ class ConnectionManager:
         else:
             answers_data = []
 
+        # Dodajemy resetowanie stanu w odpowiednich miejscach:
         base_state = {
             "gameId": game.id,
             "players": players_data,
@@ -66,15 +67,23 @@ class ConnectionManager:
             "currentRound": game.current_round,
             "gamePhase": game.game_phase,
             "settings": game.settings.dict(),
-            "playerAnswers": answers_data,
-            "currentPresentationIndex": (
-                game.current_presentation_index if game.game_phase == "presentation" else 0
-            ),
+            "playerAnswers": [],
+            "currentPresentationIndex": game.current_presentation_index,
             "timeLeft": game.timer_value,
+            "winners": [],
+            "selectedCardId": None,
+            "votedPlayerId": None,
+            "votes": {},
+            "answersCount": 0
         }
-
         if game.game_phase == "results":
             base_state["winners"] = [p.dict() for p in game.players[:3]]
+
+        if game.game_phase == "voting":
+            base_state["votes"] = game.votes
+
+        if game.game_phase == "selection":
+            base_state["answersCount"] = len(game.player_answers)
 
         connections = self.active_connections.get(game.id, {})
         for pid, wsock in list(connections.items()):

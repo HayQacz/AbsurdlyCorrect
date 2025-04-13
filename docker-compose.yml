@@ -12,25 +12,16 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-
-  adminer:
-    image: adminer
-    container_name: absurdly_adminer
-    ports:
-      - "8080:8080"
-
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: absurdly_backend
-    # Zależność od bazy
     depends_on:
       - db
     ports:
       - "8000:8000"
     environment:
-      # Przykładowa zmienna do łączenia z bazą
       DATABASE_URL: "postgresql+asyncpg://absurdly:correct@db:5432/absurdly_db"
 
   frontend:

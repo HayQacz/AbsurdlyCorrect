@@ -12,3 +12,7 @@ databases~=0.9.0
 SQLAlchemy~=2.0.38
 alembic~=1.15.1
 asyncpg
+
+httpx
+pytest
+pytest-asyncio

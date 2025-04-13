@@ -3,7 +3,7 @@ from logging.config import fileConfig
 from sqlalchemy.ext.asyncio import async_engine_from_config
 from sqlalchemy import pool
 from alembic import context
-from app.models import Base  # Upewnij się, że Base jest importowane z models.py
+from app.models import Base
 
 config = context.config
 fileConfig(config.config_file_name)

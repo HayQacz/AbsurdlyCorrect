@@ -4,6 +4,8 @@ from pydantic import BaseModel, ConfigDict
 
 Base = declarative_base()
 
+# --- DB Models ---
+
 class BlackCardDB(Base):
     __tablename__ = "black_cards"
     id = Column(String, primary_key=True, index=True)
@@ -13,6 +15,8 @@ class WhiteCardDB(Base):
     __tablename__ = "white_cards"
     id = Column(String, primary_key=True, index=True)
     content = Column(String, nullable=False)
+
+# --- Pydantic Models ---
 
 class BlackCard(BaseModel):
     model_config = ConfigDict(from_attributes=True)

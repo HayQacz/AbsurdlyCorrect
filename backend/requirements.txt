@@ -3,6 +3,7 @@ uvicorn~=0.34.0
 websockets==12.0
 pyjwt==2.8.0
 python-multipart==0.0.6
+dotenv
 
 
 pydantic~=2.10.6
